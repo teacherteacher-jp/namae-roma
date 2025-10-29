@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>名前用ローマ字生成</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 18px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .result-group {
+            margin-top: 30px;
+        }
+
+        .result {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            margin-top: 10px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .result-text {
+            font-size: 24px;
+            color: #333;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .result-text.empty {
+            color: #999;
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .examples {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .examples h2 {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .example-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .example-item {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .example-item .hiragana {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .example-item .romaji {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .result-text {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>名前用ローマ字生成</h1>
+        <p class="subtitle">ひらがなの名前をローマ字に変換します</p>
+
+        <div class="input-group">
+            <label for="nameInput">名前（ひらがな）</label>
+            <input
+                type="text"
+                id="nameInput"
+                placeholder="例: おおわだ, いとう, しょうた"
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="result-group">
+            <label>ローマ字</label>
+            <div class="result">
+                <div id="result" class="result-text empty">ひらがなを入力してください</div>
+            </div>
+        </div>
+
+        <div class="examples">
+            <h2>変換例</h2>
+            <div class="example-list">
+                <div class="example-item">
+                    <span class="hiragana">おおわだ</span> → <span class="romaji">oowada</span>
+                </div>
+                <div class="example-item">
+                    <span class="hiragana">いとう</span> → <span class="romaji">itou</span>
+                </div>
+                <div class="example-item">
+                    <span class="hiragana">しょうた</span> → <span class="romaji">shouta</span>
+                </div>
+                <div class="example-item">
+                    <span class="hiragana">ふじわら</span> → <span class="romaji">fujiwara</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ローマ字変換マップ
+        const romajiMap = {
+            // 基本的なひらがな
+            'あ': 'a', 'い': 'i', 'う': 'u', 'え': 'e', 'お': 'o',
+            'か': 'ka', 'き': 'ki', 'く': 'ku', 'け': 'ke', 'こ': 'ko',
+            'が': 'ga', 'ぎ': 'gi', 'ぐ': 'gu', 'げ': 'ge', 'ご': 'go',
+            'さ': 'sa', 'し': 'shi', 'す': 'su', 'せ': 'se', 'そ': 'so',
+            'ざ': 'za', 'じ': 'ji', 'ず': 'zu', 'ぜ': 'ze', 'ぞ': 'zo',
+            'た': 'ta', 'ち': 'chi', 'つ': 'tsu', 'て': 'te', 'と': 'to',
+            'だ': 'da', 'ぢ': 'ji', 'づ': 'zu', 'で': 'de', 'ど': 'do',
+            'な': 'na', 'に': 'ni', 'ぬ': 'nu', 'ね': 'ne', 'の': 'no',
+            'は': 'ha', 'ひ': 'hi', 'ふ': 'fu', 'へ': 'he', 'ほ': 'ho',
+            'ば': 'ba', 'び': 'bi', 'ぶ': 'bu', 'べ': 'be', 'ぼ': 'bo',
+            'ぱ': 'pa', 'ぴ': 'pi', 'ぷ': 'pu', 'ぺ': 'pe', 'ぽ': 'po',
+            'ま': 'ma', 'み': 'mi', 'む': 'mu', 'め': 'me', 'も': 'mo',
+            'や': 'ya', 'ゆ': 'yu', 'よ': 'yo',
+            'ら': 'ra', 'り': 'ri', 'る': 'ru', 'れ': 're', 'ろ': 'ro',
+            'わ': 'wa', 'ゐ': 'wi', 'ゑ': 'we', 'を': 'wo', 'ん': 'n',
+
+            // 拗音
+            'きゃ': 'kya', 'きゅ': 'kyu', 'きょ': 'kyo',
+            'ぎゃ': 'gya', 'ぎゅ': 'gyu', 'ぎょ': 'gyo',
+            'しゃ': 'sha', 'しゅ': 'shu', 'しょ': 'sho',
+            'じゃ': 'ja', 'じゅ': 'ju', 'じょ': 'jo',
+            'ちゃ': 'cha', 'ちゅ': 'chu', 'ちょ': 'cho',
+            'ぢゃ': 'ja', 'ぢゅ': 'ju', 'ぢょ': 'jo',
+            'にゃ': 'nya', 'にゅ': 'nyu', 'にょ': 'nyo',
+            'ひゃ': 'hya', 'ひゅ': 'hyu', 'ひょ': 'hyo',
+            'びゃ': 'bya', 'びゅ': 'byu', 'びょ': 'byo',
+            'ぴゃ': 'pya', 'ぴゅ': 'pyu', 'ぴょ': 'pyo',
+            'みゃ': 'mya', 'みゅ': 'myu', 'みょ': 'myo',
+            'りゃ': 'rya', 'りゅ': 'ryu', 'りょ': 'ryo'
+        };
+
+        /**
+         * ひらがなをローマ字に変換する関数
+         */
+        function convertToRomaji(hiragana) {
+            if (!hiragana) return '';
+
+            let result = '';
+            let i = 0;
+
+            while (i < hiragana.length) {
+                // 促音（っ）の処理
+                if (hiragana[i] === 'っ') {
+                    // 次の文字の子音を取得して重ねる
+                    if (i + 1 < hiragana.length) {
+                        const nextChar = hiragana[i + 1];
+                        const nextRomaji = romajiMap[nextChar] || romajiMap[hiragana.slice(i + 1, i + 3)];
+                        if (nextRomaji) {
+                            result += nextRomaji[0]; // 子音を重ねる
+                        }
+                    }
+                    i++;
+                    continue;
+                }
+
+                // 2文字（拗音）のチェック
+                if (i + 1 < hiragana.length) {
+                    const twoChar = hiragana.slice(i, i + 2);
+                    if (romajiMap[twoChar]) {
+                        result += romajiMap[twoChar];
+                        i += 2;
+                        continue;
+                    }
+                }
+
+                // 1文字の変換
+                const oneChar = hiragana[i];
+                if (romajiMap[oneChar]) {
+                    result += romajiMap[oneChar];
+                } else {
+                    // 変換できない文字はそのまま
+                    result += oneChar;
+                }
+                i++;
+            }
+
+            return result;
+        }
+
+        // リアルタイム変換
+        const nameInput = document.getElementById('nameInput');
+        const resultDiv = document.getElementById('result');
+
+        nameInput.addEventListener('input', (e) => {
+            const hiragana = e.target.value;
+
+            if (!hiragana.trim()) {
+                resultDiv.textContent = 'ひらがなを入力してください';
+                resultDiv.classList.add('empty');
+            } else {
+                const romaji = convertToRomaji(hiragana);
+                resultDiv.textContent = romaji;
+                resultDiv.classList.remove('empty');
+            }
+        });
+
+        // ページ読み込み時にフォーカス
+        nameInput.focus();
+    </script>
+</body>
+</html>
