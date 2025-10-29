@@ -159,7 +159,7 @@
             <input
                 type="text"
                 id="nameInput"
-                placeholder="例: おおわだ, いとう, しょうた"
+                placeholder="例: おおわだ, いとう, しょうた, あみーな"
                 autocomplete="off"
             >
         </div>
@@ -185,6 +185,9 @@
                 </div>
                 <div class="example-item">
                     <span class="hiragana">ふじわら</span> → <span class="romaji">fujiwara</span>
+                </div>
+                <div class="example-item">
+                    <span class="hiragana">とーたす</span> → <span class="romaji">tootasu</span>
                 </div>
             </div>
         </div>
@@ -235,6 +238,28 @@
             let i = 0;
 
             while (i < hiragana.length) {
+                // 長音記号（ー）の処理
+                if (hiragana[i] === 'ー') {
+                    // 直前の母音を繰り返す
+                    if (result.length > 0) {
+                        const lastChar = result[result.length - 1];
+                        // 最後の文字が母音かチェック
+                        if ('aiueo'.includes(lastChar)) {
+                            result += lastChar;
+                        } else {
+                            // 母音でない場合は、直前のローマ字から母音を探す
+                            for (let j = result.length - 1; j >= 0; j--) {
+                                if ('aiueo'.includes(result[j])) {
+                                    result += result[j];
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    i++;
+                    continue;
+                }
+
                 // 促音（っ）の処理
                 if (hiragana[i] === 'っ') {
                     // 次の文字の子音を取得して重ねる
